@@ -9,25 +9,14 @@
 #include<time.h>
 #include<stdbool.h>
 
+#include "demofuncs.h"
+
 //#define errExit(msg) do { perror(msg); exit(EXIT_FAILURE); } while (0)
 
 int x;
 
-int overtime = 5; //in sec
+int overtime = 10; //in sec
 
-
-
-int f_func_or(int x)
-{
-    sleep(8);
-    return x%2;
-}
-
-int g_func_or(int x)
-{
-    sleep(9);
-    return (x+1)%2;
-}
 
 int main()
 {
@@ -99,10 +88,14 @@ int main()
             polls[1].events = POLLIN;
 
             //polling
-            if(!user_stop)
+            if(user_stop == 0)
                 poll(polls, 2, overtime * 1000);
+            else if (user_stop == -1)
+                poll(polls, 2, -1);
             else
+            {
                 poll(polls, 2, 0);
+            }
 
             if(polls[0].revents & POLLIN)
             {
@@ -127,7 +120,7 @@ int main()
                 g_finished = 1;
             }
 
-            if(user_stop)
+            if(user_stop == 1)
             {
                 close(fd_f[0]);
                 close(fd_g[0]);
@@ -137,41 +130,40 @@ int main()
             time_t current_time;
             time(&current_time);
 
-            if(difftime(current_time, start_time) >= overtime)
+            if(user_stop >= 0 && difftime(current_time, start_time) >= overtime)
             {
-                printf("terminate program? Y/y/N\n");
+                printf("terminate program? Y/N/n\n");
                 char ans;
                 while(ans = getchar()){
-                    if(ans == 'Y' || ans == 'N' || ans == 'y')
+                    if(ans == 'Y' || ans == 'N' || ans == 'n')
                         break;
-                };
-                if(ans == 'y')
+                }
+                if(ans == 'Y')
                 {
                     user_stop = 1;
                 }
-                else if(ans = 'Y')
+                else if(ans == 'N')
                 {
-                    break;
+                    user_stop = -1;
                 }
                 else
                 {
-                    start_time = current_time;
+                    time(&start_time);
                 }
 
             }
         }
-
         if(f_res == 0 && g_res == 0)
         {
-            printf("res: FALSE");
+            printf("res: FALSE\n");
         }
         else if(f_res == 1 || g_res == 1)
         {
-            printf("res: TRUE");
+            printf("res: TRUE\n");
         }
         else
         {
-            printf("res: UNDEFINED");
+            printf("res: UNDEFINED\n");
         }
         return 0;
 
