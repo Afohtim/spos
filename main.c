@@ -1,13 +1,9 @@
-// C program to demonstrate use of fork() and pipe()
 #include<stdio.h>
 #include<stdlib.h>
 #include<unistd.h>
-#include<sys/types.h>
 #include<string.h>
-#include<sys/wait.h>
 #include<poll.h>
 #include<time.h>
-#include<stdbool.h>
 
 #include "demofuncs.h"
 
@@ -15,11 +11,18 @@
 
 int x;
 
-int overtime = 10; //in sec
+int overtime = 2; //in sec
 
 
 int main()
 {
+    int cancelation_type = 0;
+    while(cancelation_type != 1 && cancelation_type != 2)
+    {
+        printf("Chose cancelaion type\n 1 for canelations by ESC and 2 for periodic user prompt\n");
+        scanf("%d", &cancelation_type);
+    }
+
     printf("Input x:\n");
 	scanf("%d", &x);
 
@@ -81,6 +84,15 @@ int main()
         time(&start_time);
         while(!g_finished || !f_finished)
         {
+            if(cancelation_type == 1)
+            {
+                char c = getchar();
+                if(c == 27) //code of ESC
+                {
+                    return 0;
+                }
+            }
+
             //prepearing to check if there is data in pipes using poll
             polls[0].fd = fd_f[0];
             polls[0].events = POLLIN;
@@ -89,7 +101,7 @@ int main()
 
             //polling
             if(user_stop == 0)
-                poll(polls, 2, overtime * 1000);
+                poll(polls, 2, 0);
             else if (user_stop == -1)
                 poll(polls, 2, -1);
             else
@@ -130,12 +142,12 @@ int main()
             time_t current_time;
             time(&current_time);
 
-            if(user_stop >= 0 && difftime(current_time, start_time) >= overtime)
+            if(cancelation_type == 2 && (user_stop >= 0 && difftime(current_time, start_time) >= overtime))
             {
                 printf("terminate program? Y/N/n\n");
                 char ans;
                 while(ans = getchar()){
-                    if(ans == 'Y' || ans == 'N' || ans == 'n')
+                    if(ans == 'Y' || ans == 'N' || ans == 'n' || ans == 27)
                         break;
                 }
                 if(ans == 'Y')
@@ -153,18 +165,31 @@ int main()
 
             }
         }
+        char ans[50] = "";
         if(f_res == 0 && g_res == 0)
         {
-            printf("res: FALSE\n");
+            strcat(ans, "res: FALSE\n");
+
         }
         else if(f_res == 1 || g_res == 1)
         {
-            printf("res: TRUE\n");
+            strcat(ans, "res: TRUE\n");
         }
         else
         {
-            printf("res: UNDEFINED\n");
+            strcat(ans, "res: UNDEFINED\n");
+
+            if(f_res == -1)
+            {
+                strcat(ans, "f haven't return value\n");
+
+            }
+            if(g_res == -1)
+            {
+                strcat(ans, "g haven't return value\n");
+            }
         }
+        printf(ans);
         return 0;
 
 	}
