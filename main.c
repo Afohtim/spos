@@ -4,6 +4,7 @@
 #include<string.h>
 #include<poll.h>
 #include<time.h>
+#include<ncurses.h>
 
 #include "demofuncs.h"
 
@@ -80,16 +81,23 @@ int main()
         int f_res = -1, g_res = -1;
         int user_stop = 0;
 
+        if(cancelation_type == 1)
+        {
+            initscr();
+            keypad(stdscr,TRUE);
+            noecho();
+        }
+
         time_t start_time;
         time(&start_time);
         while(!g_finished || !f_finished)
         {
             if(cancelation_type == 1)
             {
-                char c = getchar();
+                char c = getch();
                 if(c == 27) //code of ESC
                 {
-                    return 0;
+                    break;
                 }
             }
 
@@ -147,7 +155,7 @@ int main()
                 printf("terminate program? Y/N/n\n");
                 char ans;
                 while(ans = getchar()){
-                    if(ans == 'Y' || ans == 'N' || ans == 'n' || ans == 27)
+                    if(ans == 'Y' || ans == 'N' || ans == 'n')
                         break;
                 }
                 if(ans == 'Y')
@@ -190,6 +198,10 @@ int main()
             }
         }
         printf(ans);
+        if(cancelation_type == 1)
+        {
+            endwin();
+        }
         return 0;
 
 	}
