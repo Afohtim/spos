@@ -262,11 +262,11 @@ void parent_process_2(int x, int* fd_f, int* fd_g)
 
 int main()
 {
-    int cancelation_type = 0;
-    while(cancelation_type != 1 && cancelation_type != 2)
+    int cancellation_type = 0;
+    while(cancelation_type != 1 && cancellation_type != 2)
     {
         printf("Chose cancelaion type\n 1 for canelations by ESC and 2 for periodic user prompt\n");
-        scanf("%d", &cancelation_type);
+        scanf("%d", &cancellation_type);
     }
 
     printf("Input x:\n");
