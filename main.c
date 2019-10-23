@@ -62,6 +62,7 @@ void parent_process_1(int x, int* fd_f, int* fd_g)
 
     WINDOW* window = initscr();
     nodelay(window, true);
+    set_escdelay(0);
     clear();
     wprintw(window, "press ESC to exit program\n");
     refresh();
@@ -262,9 +263,9 @@ void parent_process_2(int x, int* fd_f, int* fd_g)
 int main()
 {
     int cancellation_type = 0;
-    while(cancelation_type != 1 && cancellation_type != 2)
+    while(cancellation_type != 1 && cancellation_type != 2)
     {
-        printf("Chose cancelaion type\n 1 for canelations by ESC and 2 for periodic user prompt\n");
+        printf("Chose cancellaion type\n 1 for canelations by ESC and 2 for periodic user prompt\n");
         scanf("%d", &cancellation_type);
     }
 
@@ -304,7 +305,7 @@ int main()
 	// Parent process
 	if (f_id > 0 && g_id > 0)
 	{
-	    if(cancelation_type == 1)
+	    if(cancellation_type == 1)
         {
             parent_process_1(x, fd_f, fd_g);
         }
@@ -330,8 +331,4 @@ int main()
         return 0;
     }
 
-    if(cancelation_type == 1)
-    {
-        endwin();
-    }
 }
