@@ -62,7 +62,6 @@ void parent_process_1(int x, int* fd_f, int* fd_g)
 
     WINDOW* window = initscr();
     nodelay(window, true);
-    set_escdelay(0);
     clear();
     wprintw(window, "press ESC to exit program\n");
     refresh();
