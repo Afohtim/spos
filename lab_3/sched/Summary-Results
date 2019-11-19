@@ -1,0 +1,9 @@
+Scheduling Type: Interactive
+Scheduling Name: Guaranteed Scheduling
+Simulation Run Time: 2442
+Mean: 1100
+Standard Deviation: 510
+Process #	CPU Time	IO Blocking	CPU Completed	CPU Blocked
+0		1054 (ms)	100 (ms)	1500 (ms)	15 times
+1		471 (ms)	500 (ms)	471 (ms)	0 times
+2		471 (ms)	30 (ms)		471 (ms)	15 times

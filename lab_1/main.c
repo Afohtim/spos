@@ -13,7 +13,7 @@
 
 int x;
 
-int prompt_timeout = 2; //in sec
+int prompt_timeout = 100; //in sec
 
 int open_pipes(int* fd_f, int* fd_g)
 {
