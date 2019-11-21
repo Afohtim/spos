@@ -6,6 +6,10 @@ import java.util.Vector;
 import java.io.*;
 
 public class SchedulingAlgorithm {
+  
+  private static float ratio(sProcess process) {
+    return (float)process.cpudone / (float)process.cputime / (float)process.priority;
+  }
 
   public static Results Run(final int runtime, final Vector processVector, final Results result) {
     int i = 0;
@@ -38,18 +42,16 @@ public class SchedulingAlgorithm {
           }
 
           // Chosing process with minimal cpu usage done
-          int mincpudone = runtime;
-          currentProcess = -1;
-          for (i = 0; i < size; ++i) {
+          float minratio = ratio((sProcess) processVector.elementAt(0));
+          currentProcess = 1;
+          for (i = 1; i < size; ++i) {
             process = (sProcess) processVector.elementAt(i);
-            if (process.cpudone < process.cputime && process.cpudone < mincpudone) { 
-              mincpudone = process.cpudone;
+            float processRatio = ratio(process);
+            if (process.cpudone < process.cputime && processRatio < minratio) { 
+              minratio = processRatio;
               currentProcess = i;
             }
           }
-          if(currentProcess == -1)
-            currentProcess = 0;
-
           process = (sProcess) processVector.elementAt(currentProcess);
           out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + ")");
         }  
@@ -61,14 +63,15 @@ public class SchedulingAlgorithm {
 
 
           // Chosing process with minimal cpu usage done
-          int mincpudone = runtime;
-          currentProcess = -1;
-          for (i = 0; i < size; ++i) {
+          float minratio = ratio((sProcess) processVector.elementAt(0));
+          currentProcess = 1;
+          for (i = 1; i < size; ++i) {
             if(i == previousProcess)
               continue;
             process = (sProcess) processVector.elementAt(i);
-            if (process.cpudone < process.cputime && process.cpudone < mincpudone) { 
-              mincpudone = process.cpudone;
+            float processRatio = ratio(process);
+            if (process.cpudone < process.cputime && processRatio < minratio) { 
+              minratio = process.cpudone;
               currentProcess = i;
             }
           }

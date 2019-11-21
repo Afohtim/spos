@@ -24,7 +24,7 @@ public class Scheduling {
   private static Vector processVector = new Vector();
   private static Results result = new Results("null","null",0);
   private static String resultsFile = "Summary-Results";
-
+  
   private static void Init(String file) {
     File f = new File(file);
     String line;
@@ -62,7 +62,8 @@ public class Scheduling {
           }
           X = X * standardDev;
           cputime = (int) X + meanDev;
-          processVector.addElement(new sProcess(cputime, ioblocking, 0, 0, 0));          
+          //TODO read priority from config
+          processVector.addElement(new sProcess(cputime, ioblocking, 0, 0, 0, 100));          
         }
         if (line.startsWith("runtime")) {
           StringTokenizer st = new StringTokenizer(line);
@@ -115,7 +116,8 @@ public class Scheduling {
           }
           X = X * standardDev;
         int cputime = (int) X + meanDev;
-        processVector.addElement(new sProcess(cputime,i*100,0,0,0));          
+          //TODO read priority from config
+        processVector.addElement(new sProcess(cputime,i*100,0,0,0,100));          
         i++;
       }
     }
