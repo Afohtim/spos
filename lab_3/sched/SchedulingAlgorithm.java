@@ -7,8 +7,8 @@ import java.io.*;
 
 public class SchedulingAlgorithm {
   
-  private static float ratio(sProcess process) {
-    return (float)process.cpudone / (float)process.cputime / (float)process.priority;
+  private static float ratio(sProcess process, int runtime) {
+    return (float)process.cpudone / runtime / (float)process.priority ;
   }
 
   public static Results Run(final int runtime, final Vector processVector, final Results result) {
@@ -30,11 +30,11 @@ public class SchedulingAlgorithm {
       //OutputStream out = new FileOutputStream(resultsFile);
       PrintStream out = new PrintStream(new FileOutputStream(resultsFile));
       sProcess process = (sProcess) processVector.elementAt(currentProcess);
-      out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + ")");
+      out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.priority + ")");
       while (comptime < runtime) {
         if (process.cpudone == process.cputime) {
           completed++;
-          out.println("Process: " + currentProcess + " completed... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + ")");
+          out.println("Process: " + currentProcess + " completed... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.priority + ")");
           if (completed == size) {
             result.compuTime = comptime;
             out.close();
@@ -42,35 +42,39 @@ public class SchedulingAlgorithm {
           }
 
           // Chosing process with minimal cpu usage done
-          float minratio = ratio((sProcess) processVector.elementAt(0));
-          currentProcess = 1;
-          for (i = 1; i < size; ++i) {
+          float minratio = 10000;
+          currentProcess = -1;
+          for (i = 0; i < size; ++i) {
             process = (sProcess) processVector.elementAt(i);
-            float processRatio = ratio(process);
+            float processRatio = ratio(process, runtime);
+            out.println(Integer.toString(i) + " " + Float.toString(processRatio));
             if (process.cpudone < process.cputime && processRatio < minratio) { 
+              out.println("changed");
               minratio = processRatio;
               currentProcess = i;
             }
           }
           process = (sProcess) processVector.elementAt(currentProcess);
-          out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + ")");
+          out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.priority + ")");
         }  
         if (process.ioblocking == process.ionext) {
-          out.println("Process: " + currentProcess + " I/O blocked... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + ")");
+          out.println("Process: " + currentProcess + " I/O blocked... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.priority + ")");
           process.numblocked++;
           process.ionext = 0; 
           previousProcess = currentProcess;
 
 
           // Chosing process with minimal cpu usage done
-          float minratio = ratio((sProcess) processVector.elementAt(0));
-          currentProcess = 1;
-          for (i = 1; i < size; ++i) {
+          float minratio = 10000;
+          currentProcess = -1;
+          for (i = 0; i < size; ++i) {
             if(i == previousProcess)
               continue;
             process = (sProcess) processVector.elementAt(i);
-            float processRatio = ratio(process);
+            float processRatio = ratio(process, runtime);
+            out.println(Integer.toString(i) + " " + Float.toString(processRatio));
             if (process.cpudone < process.cputime && processRatio < minratio) { 
+              out.println("changed");
               minratio = process.cpudone;
               currentProcess = i;
             }
@@ -79,7 +83,7 @@ public class SchedulingAlgorithm {
             currentProcess = 0;
 
           process = (sProcess) processVector.elementAt(currentProcess);
-          out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.cpudone + ")");
+          out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.ioblocking + " " + process.cpudone + " " + process.priority + ")");
         }        
         process.cpudone++;       
         if (process.ioblocking > 0) {

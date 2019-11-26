@@ -56,6 +56,8 @@ public class Scheduling {
           StringTokenizer st = new StringTokenizer(line);
           st.nextToken();
           ioblocking = Common.s2i(st.nextToken());
+          //st.nextToken();
+          int priority = Common.s2i(st.nextToken());
           X = Common.R1();
           while (X == -1.0) {
             X = Common.R1();
@@ -63,7 +65,7 @@ public class Scheduling {
           X = X * standardDev;
           cputime = (int) X + meanDev;
           //TODO read priority from config
-          processVector.addElement(new sProcess(cputime, ioblocking, 0, 0, 0, 100));          
+          processVector.addElement(new sProcess(cputime, ioblocking, 0, 0, 0, priority));          
         }
         if (line.startsWith("runtime")) {
           StringTokenizer st = new StringTokenizer(line);
@@ -117,7 +119,7 @@ public class Scheduling {
           X = X * standardDev;
         int cputime = (int) X + meanDev;
           //TODO read priority from config
-        processVector.addElement(new sProcess(cputime,i*100,0,0,0,100));          
+        processVector.addElement(new sProcess(cputime,i*100,0,0,0,20));          
         i++;
       }
     }
