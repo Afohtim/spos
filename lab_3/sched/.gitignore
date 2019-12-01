@@ -1,5 +1,5 @@
 *.html 
 *.txt
 *.TXT
-./Summary-Results
-./Summary-Processes
+*Summary-Results
+*Summary-Processes
