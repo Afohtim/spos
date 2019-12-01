@@ -1,15 +1,15 @@
 public class Process {
   public int cputime;
-  public int ioblocking;
+  public int timeWorkingUntillBlock;
   public int cpudone;
-  public int ionext;
+  public int worktime;
   public int numblocked;
 
-  public Process(int cputime, int ioblocking, int cpudone, int ionext, int numblocked) {
+  public Process(int cputime, int timeWorkingUntillBlock, int cpudone, int worktime, int numblocked) {
     this.cputime = cputime;
-    this.ioblocking = ioblocking;
+    this.timeWorkingUntillBlock = timeWorkingUntillBlock;
     this.cpudone = cpudone;
-    this.ionext = ionext;
+    this.worktime = worktime;
     this.numblocked = numblocked;
   } 	
 }
