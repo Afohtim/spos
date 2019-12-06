@@ -1,13 +1,13 @@
 public class Process {
   public int cputime;
-  public int timeWorkingUntillBlock;
+  public int currentCPUTimeWorking;
   public int cpudone;
   public int worktime;
   public int numblocked;
 
-  public Process(int cputime, int timeWorkingUntillBlock, int cpudone, int worktime, int numblocked) {
+  public Process(int cputime, int currentCPUTimeWorking, int cpudone, int worktime, int numblocked) {
     this.cputime = cputime;
-    this.timeWorkingUntillBlock = timeWorkingUntillBlock;
+    this.currentCPUTimeWorking = currentCPUTimeWorking;
     this.cpudone = cpudone;
     this.worktime = worktime;
     this.numblocked = numblocked;

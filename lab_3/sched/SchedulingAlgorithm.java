@@ -6,10 +6,16 @@ import java.util.Vector;
 import java.io.*;
 
 public class SchedulingAlgorithm {
-  
-  private static float ratio(sProcess process, int runtime) {
-    return (float)process.cpudone / runtime / (float)process.priority * 100;
+
+  private static float PriorityFunction(int priority) {
+    return (float)Math.pow(2.0f, priority/20);
+    //return (float)(priority == 0 ? 1 : priority);
   }
+  
+  private static float ratio(sProcess process, float expectedCpudone, int n) {
+    return (float)process.cpudone / expectedCpudone / PriorityFunction(process.priority);
+  }
+
 
   public static Results Run(final int runtime, final Vector processVector, final Results result) {
     int i = 0;
@@ -32,12 +38,12 @@ public class SchedulingAlgorithm {
     try {
       PrintStream out = new PrintStream(new FileOutputStream(resultsFile));
       sProcess process = (sProcess) processVector.elementAt(currentProcess);
-      out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.timeWorkingUntillBlock + " " + process.cpudone + " " + process.priority + ")");
+      out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.currentCPUTimeWorking + " " + process.cpudone + " " + process.priority + ")");
       while (comptime < runtime || completed != size) {
         //if process finished
         if (currentProcess != -1 && process.cpudone == process.cputime) {
           completed++;
-          out.println("Process: " + currentProcess + " completed... (" + process.cputime + " " + process.timeWorkingUntillBlock + " " + process.cpudone + " " + process.priority + ")");
+          out.println("Process: " + currentProcess + " completed... (" + process.cputime + " " + process.currentCPUTimeWorking + " " + process.cpudone + " " + process.priority + ")");
           if (completed == size) {
             result.compuTime = comptime;
             out.close();
@@ -47,9 +53,22 @@ public class SchedulingAlgorithm {
           // Chosing process with minimal cpu usage done
           float minratio = 10000;
           currentProcess = -1;
+          
+          int numberProcessesReady = 0;
+          float cpudoneAvarage = 0;
+          for(i = 0; i < size; ++i) {
+            process = (sProcess) processVector.elementAt(i);
+            if (process.cpudone < process.cputime && currentBlockTimes.elementAt(i) == 0) {
+              numberProcessesReady++;
+              cpudoneAvarage += process.cpudone;
+            }
+          }
+          if(numberProcessesReady > 0 )
+            cpudoneAvarage /= numberProcessesReady;
+
           for (i = 0; i < size; ++i) {
             process = (sProcess) processVector.elementAt(i);
-            float processRatio = ratio(process, runtime);
+            float processRatio = ratio(process, cpudoneAvarage, numberProcessesReady);
             if (process.cpudone < process.cputime && currentBlockTimes.elementAt(i) == 0 && processRatio < minratio) { 
               minratio = processRatio;
               currentProcess = i;
@@ -65,14 +84,14 @@ public class SchedulingAlgorithm {
           else {
             noWork = false;
             process = (sProcess) processVector.elementAt(currentProcess);
-            out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.timeWorkingUntillBlock + " " + process.cpudone + " " + process.priority + ")");
+            out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.currentCPUTimeWorking + " " + process.cpudone + " " + process.priority + ")");
           }
         }  
         // If Blocked  
-        if (currentProcess == -1 || process.timeWorkingUntillBlock == process.worktime) {
+        if (currentProcess == -1 || process.currentCPUTimeWorking == process.worktime) {
           if(currentProcess != -1) {
             currentBlockTimes.setElementAt(process.blocktime ,currentProcess);
-            out.println("Process: " + currentProcess + " blocked... (" + process.cputime + " " + process.timeWorkingUntillBlock + " " + process.cpudone + " " + process.priority + ")");
+            out.println("Process: " + currentProcess + " blocked... (" + process.cputime + " " + process.currentCPUTimeWorking + " " + process.cpudone + " " + process.priority + ")");
             process.numblocked++;
             process.worktime = 0;
           }
@@ -82,11 +101,24 @@ public class SchedulingAlgorithm {
           // Chosing process with minimal ratio
           float minratio = 10000;
           currentProcess = -1;
+
+          int numberProcessesReady = 0;
+          float cpudoneAvarage = 0;
+          for(i = 0; i < size; ++i) {
+            process = (sProcess) processVector.elementAt(i);
+            if (process.cpudone < process.cputime && currentBlockTimes.elementAt(i) == 0) {
+              numberProcessesReady++;
+              cpudoneAvarage += process.cpudone;
+            }
+          }
+          if(numberProcessesReady > 0 )
+            cpudoneAvarage /= numberProcessesReady;
+
           for (i = 0; i < size; ++i) {
             if(i == previousProcess)
               continue;
             process = (sProcess) processVector.elementAt(i);
-            float processRatio = ratio(process, runtime);
+            float processRatio = ratio(process, cpudoneAvarage, numberProcessesReady);
             if (process.cpudone < process.cputime && currentBlockTimes.elementAt(i) == 0 && processRatio < minratio) { 
               minratio = process.cpudone;
               currentProcess = i;
@@ -102,10 +134,10 @@ public class SchedulingAlgorithm {
           else {
             noWork = false;
             process = (sProcess) processVector.elementAt(currentProcess);
-            out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.timeWorkingUntillBlock + " " + process.cpudone + " " + process.priority + ")");
+            out.println("Process: " + currentProcess + " registered... (" + process.cputime + " " + process.currentCPUTimeWorking + " " + process.cpudone + " " + process.priority + ")");
             
             process.cpudone++;       
-            if (process.timeWorkingUntillBlock > 0) {
+            if (process.currentCPUTimeWorking > 0) {
               process.worktime++;
             }
             
@@ -113,7 +145,7 @@ public class SchedulingAlgorithm {
         }
         if (currentProcess != -1) {
           process.cpudone++;       
-          if (process.timeWorkingUntillBlock > 0) {
+          if (process.currentCPUTimeWorking > 0) {
             process.worktime++;
           }
         }
@@ -122,6 +154,10 @@ public class SchedulingAlgorithm {
         }
 
         comptime++;
+        sProcess process4 = (sProcess)processVector.elementAt(4);
+        out.print(currentProcess);
+        out.print(" ");
+        out.println(process4.cpudone);
       }
       out.close();
     } catch (IOException e) { /* Handle exceptions */ }
