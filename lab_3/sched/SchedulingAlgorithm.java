@@ -9,11 +9,12 @@ public class SchedulingAlgorithm {
 
   private static float PriorityFunction(int priority) {
     return (float)Math.pow(2.0f, priority/20);
-    //return (float)(priority == 0 ? 1 : priority);
   }
   
   private static float ratio(sProcess process, float expectedCpudone, int n) {
-    return (float)process.cpudone / expectedCpudone / PriorityFunction(process.priority);
+    if(expectedCpudone == 0)
+      return 1.0f;
+    return (float)process.cpudone / (expectedCpudone * PriorityFunction(process.priority));
   }
 
   private static int UntillSchedulerBlock(int priority)
@@ -127,9 +128,10 @@ public class SchedulingAlgorithm {
             if(i == previousProcess)
               continue;
             process = (sProcess) processVector.elementAt(i);
+            //out.println(i + " " + ratio(process, cpudoneAvarage, numberProcessesReady )+ " " + currentBlockTimes.elementAt(i));
             float processRatio = ratio(process, cpudoneAvarage, numberProcessesReady);
             if (process.cpudone < process.cputime && currentBlockTimes.elementAt(i) == 0 && processRatio < minratio) { 
-              minratio = process.cpudone;
+              minratio = processRatio;
               currentProcess = i;
             }
           }
@@ -144,11 +146,6 @@ public class SchedulingAlgorithm {
             noWork = false;
             process = (sProcess) processVector.elementAt(currentProcess);
             out.println("Process: " + currentProcess + " registered... (" + comptime + " " + process.cputime + " " + process.untillBlock + " " + process.cpudone + " " + process.priority + ")");
-            
-            process.cpudone++;       
-            if (process.untillBlock > 0) {
-              process.worktime++;
-            }
             
           }
         }
@@ -185,7 +182,7 @@ public class SchedulingAlgorithm {
             process = (sProcess) processVector.elementAt(i);
             float processRatio = ratio(process, cpudoneAvarage, numberProcessesReady);
             if (process.cpudone < process.cputime && currentBlockTimes.elementAt(i) == 0 && processRatio < minratio) { 
-              minratio = process.cpudone;
+              minratio = processRatio;
               currentProcess = i;
             }
           }
